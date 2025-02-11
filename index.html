@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Sorting</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const img = new Image();
+        img.src = 'input_image.jpg'; // Replace with your image path
+        img.onload = () => {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Create an array of pixels with simulated age
+            const pixels = [];
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+                const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+                const colorValue = r + g + b; // Sum of RGB values
+                const age = Math.floor(Math.random() * 256); // Simulated age
+                pixels.push({ r, g, b, a, brightness, colorValue, age });
+            }
+
+            // Sort pixels based on chosen criteria
+            const sortBy = 'brightness'; // Change to 'color' or 'age' as needed
+            let sortedPixels;
+
+            if (sortBy === 'brightness') {
+                sortedPixels = pixels.sort((a, b) => a.brightness - b.brightness);
+            } else if (sortBy === 'color') {
+                sortedPixels = pixels.sort((a, b) => a.colorValue - b.colorValue);
+            } else if (sortBy === 'age') {
+                sortedPixels = pixels.sort((a, b) => a.age - b.age);
+            } else {
+                throw new Error("Invalid sortBy value. Choose 'brightness', 'color', or 'age'.");
+            }
+
+            // Put sorted pixels back into the image data
+            for (let i = 0; i < sortedPixels.length; i++) {
+                data[i * 4] = sortedPixels[i].r;
+                data[i * 4 + 1] = sortedPixels[i].g;
+                data[i * 4 + 2] = sortedPixels[i].b;
+                data[i * 4 + 3] = sortedPixels[i].a;
+            }
+
+            // Update the canvas with sorted pixels
+            ctx.putImageData(imageData, 0, 0);
+        };
+    </script>
+</body>
+</html>
